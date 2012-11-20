@@ -59,9 +59,12 @@ package utils
                       "    lastName TEXT, " +  
                       "    salary NUMERIC CHECK (salary > 0)" +  
                       ")"; 
-					  
-			currentStatement.text = sqlText; 
+						
+			currentStatement.text = sqlText;
 			currentStatement.execute();
+			currentStatement.parameters[":firstName"] = "ItemFirst"; 
+			currentStatement.parameters[":lastName"] = "ITemSec"; 
+				
 			currentStatement.addEventListener(SQLEvent.RESULT, currentStatement_result); 
 			currentStatement.addEventListener(SQLErrorEvent.ERROR, currentStatement_error);	
 		}
@@ -77,12 +80,12 @@ package utils
 			initStatement();
 			trace("the database was created successfully");
 		}
-		
+			
 		private function sQLConnection_error(e:SQLErrorEvent):void 
 		{
 			trace(e.error.message); 
 		}
-		
+			
 		private function currentStatement_result(e:SQLEvent):void 
 		{
 			trace(e.target);

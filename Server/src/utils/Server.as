@@ -29,12 +29,18 @@ package utils
 		{
 			messageText = new InfoText(16, 0x02ff1b);
 			messageText.setText("Server: Ready");
-			messageText.x = 10;
-			messageText.y = 10;
+			messageText.x = 5;
+			messageText.y = 5;
 			this.addChild(messageText);
 			
 			initServer(); 
 		}
+		
+//-------------------------------------------------------------------------------------------------
+//
+//	Methods definition
+//
+//-------------------------------------------------------------------------------------------------	
 		
 		public function initServer():void 
 		{
@@ -42,7 +48,6 @@ package utils
 			{
 				serverSocket.close();
 			}
-			
 			
 			clientSockets = new Array();
 			
@@ -68,6 +73,56 @@ package utils
 				messageText.setText(message);
 			}
 		}
+		
+		public function convert(data:Array):ByteArray 
+		{
+			var result:ByteArray = new ByteArray();
+			
+			//Pilot Signall
+			result.writeByte(0xff);
+			result.writeByte(0xff);
+			result.writeByte(0xff);
+			result.writeByte(0xff);
+			result.writeByte(0x55);
+			
+			//Data
+			result.writeByte(data[0]);
+			result.writeByte(data[1]);
+			result.writeByte(data[2]);
+			trace(result);
+			return result;
+		}
+			
+		public function deactivate():void
+		{
+			serverSocket.close();
+			serverSocket = null;
+			message = null;
+			this.removeChild(messageText);
+			messageText = null;
+			clientSockets.length = 0;
+		}
+		
+		public function setValues(dir:int = 0, s:int = 0, d:int = 0):void
+		{
+			directionValue = dir;
+			spacingValue = s;
+			distanceValue = d;
+			
+			var data:String = " ";
+			if (clientSockets.length != 0)
+			{
+				var socket: Socket = clientSockets[clientSockets.length - 1];
+				socket.writeBytes(convert([directionValue, spacingValue, distanceValue]));
+				socket.flush(); 
+			}
+		}
+		
+//-------------------------------------------------------------------------------------------------
+//
+//  Events handlers
+//
+//-------------------------------------------------------------------------------------------------	
 		
 		private function connectHandler(e:ServerSocketConnectEvent):void 
 		{
@@ -101,32 +156,13 @@ package utils
 			message = "Server: " +  "Sending: " + data;
 			messageText.setText(message);
 		}
-		
-		public function convert(data:Array):ByteArray 
-		{
-			var result:ByteArray = new ByteArray();
-			
-			//Pilot Signall
-			result.writeByte(0xff);
-			result.writeByte(0xff);
-			result.writeByte(0xff);
-			result.writeByte(0xff);
-			result.writeByte(0x55);
-			
-			//Data
-			result.writeByte(data[0]);
-			result.writeByte(data[1]);
-			result.writeByte(data[2]);
-			trace(result);
-			return result;
-		}
 			
 		private function onIOError(e:IOErrorEvent):void 
 		{
 			message = "Server: " + e.text;
 			messageText.setText(message);
 		}
-				
+		
 		private function onClientClose(e:Event):void 
 		{
 			message = "Server: " + "Connection to client closed";
@@ -137,34 +173,6 @@ package utils
 		{
 			message = "Server: " + "Server socket closed by OS.";
 			messageText.setText(message);
-		}
-		
-		public function deactivate():void
-		{
-			serverSocket.close();
-			serverSocket = null;
-			message = null;
-			this.removeChild(messageText);
-			messageText = null;
-			clientSockets.length = 0;
-		}
-		
-		public function setValues(dir:int = 0, s:int = 0, d:int = 0):void
-		{
-			directionValue = dir;
-			spacingValue = s;
-			distanceValue = d;
-			
-			var data:String = " ";
-			if (clientSockets.length != 0)
-			{
-				var socket: Socket = clientSockets[clientSockets.length - 1];
-				socket.writeBytes(convert([directionValue, spacingValue, distanceValue]));
-				socket.flush(); 
-			}
-			
-			 
-			
 		}
 	}
 
