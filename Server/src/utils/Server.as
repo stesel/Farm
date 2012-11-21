@@ -78,7 +78,7 @@ package utils
 		{
 			var result:ByteArray = new ByteArray();
 			
-			//Pilot Signall
+			//Pilot Signal
 			result.writeByte(0xff);
 			result.writeByte(0xff);
 			result.writeByte(0xff);

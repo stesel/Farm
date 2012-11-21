@@ -1,5 +1,6 @@
 package game 
 {
+	import components.VegetableProperty;
 	import events.GameEvent;
 	import events.ModelEvent;
 	import flash.events.Event;
@@ -58,6 +59,14 @@ package game
 			buttonActions[GameActions.MENU] = onCallMenu;
 		}
 		
+		
+		public function sendRequest(properties:VegetableProperty):void 
+		{
+			var obj:Object = { };
+			obj["request"] = properties;
+			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
+			_model.sendRequest(properties);
+		}
 		
 		private function onPlantClover():void 
 		{

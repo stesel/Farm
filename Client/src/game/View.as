@@ -1,10 +1,10 @@
 package game 
 {
-	import Box2D.Dynamics.Contacts.b2EdgeAndCircleContact;
 	import components.ContentLoader;
 	import components.InfoText;
 	import components.ResourseLoader;
 	import components.SimpleButton;
+	import components.VegetableProperty;
 	import events.ButtonEvent;
 	import events.GameEvent;
 	import events.ModelEvent;
@@ -12,11 +12,8 @@ package game
 	import flash.display.Loader;
 	import flash.display.Sprite;
     import flash.events.Event;
-	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
-	import flash.text.TextFieldAutoSize;
-	import flash.ui.Keyboard;
 	import flash.ui.Mouse;
     /**
 	 * ... View component of MVC
@@ -37,7 +34,7 @@ package game
 		private var mouseX0:Number;									//Mouse Dragging
 		private var mouseY0:Number;									//Mouse Dragging
 		
-		private var vegetables:Vector.<ResourseLoader>;				//Vegetables Array
+		private var _vegetables:Vector.<ResourseLoader>;			//Vegetables Array
 		private var vegIndex:Vector.<int>;							//Vegetables Index Array
 		
 		private var _harvest:Object = { };							//Harvest
@@ -83,7 +80,7 @@ package game
 		
 		private function initVegetables():void 
 		{
-			vegetables = new Vector.<ResourseLoader>;
+			_vegetables = new Vector.<ResourseLoader>;
 			resourses = new Vector.<ResourseLoader>;
 			vegIndex = new Vector.<int>;
 		}
@@ -230,7 +227,7 @@ package game
 				if (vegIndex[i] < 5)
 				{
 					vegIndex[i]++;
-					var oldVegetable:ResourseLoader = vegetables[i];
+					var oldVegetable:ResourseLoader = _vegetables[i];
 					plant.removeChild(oldVegetable);
 					var newUrl:String = oldVegetable.url;
 					newUrl = newUrl.slice(0, newUrl.length - 5);
@@ -240,7 +237,7 @@ package game
 					newVegetable.x = oldVegetable.x;
 					newVegetable.y = oldVegetable.y;
 					plant.addChild(newVegetable);
-					vegetables[i] = newVegetable;
+					_vegetables[i] = newVegetable;
 				}
 			}
 		}
@@ -292,14 +289,14 @@ package game
 		//Gather a ripe Sun Flower
 		private function gatherSunFlower(type:String):void 
 		{
-			for (var i:int = vegetables.length - 1; i > -1; i--)
+			for (var i:int = _vegetables.length - 1; i > -1; i--)
 			{
-				var item:ResourseLoader = vegetables[i];
+				var item:ResourseLoader = _vegetables[i];
 				var index:int = vegIndex[i];
 				if (item.url.indexOf(type) != -1 && index == 5)
 				{
 					plant.removeChild(item);
-					vegetables.splice(i, 1);
+					_vegetables.splice(i, 1);
 					vegIndex.splice(i, 1);
 					_harvest["sunflover"]++;
 				}
@@ -310,14 +307,14 @@ package game
 		//Gather a ripe Potato
 		private function gatherPotato(type:String):void 
 		{
-			for (var i:int = vegetables.length - 1; i > -1; i--)
+			for (var i:int = _vegetables.length - 1; i > -1; i--)
 			{
-				var item:ResourseLoader = vegetables[i];
+				var item:ResourseLoader = _vegetables[i];
 				var index:int = vegIndex[i];
 				if (item.url.indexOf(type) != -1 && index == 5)
 				{
 					plant.removeChild(item);
-					vegetables.splice(i, 1);
+					_vegetables.splice(i, 1);
 					vegIndex.splice(i, 1);
 					_harvest["potato"]++;
 				}
@@ -328,14 +325,14 @@ package game
 		//Gather a ripe Clover
 		private function gatherClover(type:String):void 
 		{
-			for (var i:int = vegetables.length - 1; i > -1; i--)
+			for (var i:int = _vegetables.length - 1; i > -1; i--)
 			{
-				var item:ResourseLoader = vegetables[i];
+				var item:ResourseLoader = _vegetables[i];
 				var index:int = vegIndex[i];
 				if (item.url.indexOf(type) != -1 && index == 5)
 				{
 					plant.removeChild(item);
-					vegetables.splice(i, 1);
+					_vegetables.splice(i, 1);
 					vegIndex.splice(i, 1);
 					_harvest["clover"]++;
 				}
@@ -356,18 +353,35 @@ package game
 			resourses.push(vegetable);
 		}
 		
-		//To Plant Vegetable Under Mouse
+		//To Plant Vegetable Under Mouse and send request
 		private function vegetable_click(e:MouseEvent):void 
 		{
 			stage.removeEventListener(MouseEvent.MOUSE_MOVE, vegetable_mouseMove);
 			stage.removeEventListener(MouseEvent.RIGHT_CLICK, vegetable_click);
 			Mouse.show();
+			
+			var vegetable: ResourseLoader = _vegetables[_vegetables.length - 1];
+			var type:String;
+			var phase:int = vegIndex[vegIndex.length - 1];
+			var _x:int = vegetable.x;
+			var _y:int = vegetable.y;
+			
+			if (vegetable.url.indexOf("clover") != -1)
+				type = "clover";
+			else if (vegetable.url.indexOf("potato") != -1)
+				type = "potato";
+			else if (vegetable.url.indexOf("sunflower") != -1)
+				type = "sunflower";
+			
+			var properties:VegetableProperty = new VegetableProperty(type, phase, _x, _y);
+			_controller.sendRequest(properties);
+			
 		}
 		
 		//Drag Vegetable
 		private function vegetable_mouseMove(e:MouseEvent):void 
 		{
-			var vegetable: ResourseLoader = vegetables[vegetables.length - 1];
+			var vegetable: ResourseLoader = _vegetables[_vegetables.length - 1];
 			vegetable.x = plant.mouseX;
 			vegetable.y = plant.mouseY;
 			e.updateAfterEvent();
@@ -433,7 +447,7 @@ package game
 			var obj:Object = e.result as Object
 			
 			//New Vegetable
-			if (obj["newVegatable"])
+			if (obj.hasOwnProperty("newVegatable"))
 			{
 				var url:String;
 				url = obj["newVegatable"];
@@ -441,7 +455,7 @@ package game
 				vegetable.x = plant.mouseX;
 				vegetable.y = plant.mouseY;
 				plant.addChild(vegetable);
-				vegetables.push(vegetable);
+				_vegetables.push(vegetable);
 				vegIndex.push(1);
 				stage.addEventListener(MouseEvent.MOUSE_MOVE, vegetable_mouseMove);
 				stage.addEventListener(MouseEvent.RIGHT_CLICK, vegetable_click);
@@ -455,7 +469,7 @@ package game
 			}
 			
 			//Gathering
-			if (obj["takeVegetables"])
+			if (obj.hasOwnProperty("takeVegetables"))
 			{
 				var type:String;
 				type = obj["takeVegetables"];
@@ -476,7 +490,36 @@ package game
 //
 //--------------------------------------------------------------------------
 		
+		public function get vegetables():Vector.<ResourseLoader>
+		{
+			return _vegetables;
+		}
 		
+		public function set vegetables(value:Vector.<ResourseLoader>):void
+		{
+			_vegetables = value;
+		}
+		
+		public function get indexes():Vector.<int>
+		{
+			return vegIndex;
+		}
+		
+		public function set indexes(value:Vector.<int>):void
+		{
+			vegIndex = value;
+		}
+		
+		public function get harvest():Object
+		{
+			return _harvest;
+		}
+		
+		public function set harvest(value:Object):void
+		{
+			_harvest = value;
+			changeResult();
+		}
     }
 
 }

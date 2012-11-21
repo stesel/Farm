@@ -8,8 +8,8 @@ package events
 	 */
 	public class ModelEvent extends Event 
 	{
-		
 		static public const ACTION_PROCESSED:String = "ActionProcessed";
+		static public const SEND_REQUEST:String = "SendRequest";
 		
 		public var result:Object;
 		
