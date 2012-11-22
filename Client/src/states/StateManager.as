@@ -50,7 +50,7 @@ package states
 			vector.length = 5;
 			for (var i:int = 0;i < vector.length; i++)
 			{
-				var item: VegetableProperty = new VegetableProperty("potato", i, 100 * i, 100 * i);
+				var item: VegetableProperty = new VegetableProperty("sunflower", 5, 100 * (i+2), 100 * (i+2));
 				vector[i] = item;
 			}
 			var obj:Object = { };
@@ -59,6 +59,7 @@ package states
 			obj["potato"] = 4;
 			obj["sunflower"] = 5;
 			result = obj;
+			resume = true;
 			/////////
 			initMenu();
 		}
@@ -117,9 +118,12 @@ package states
 		
 		private function socketClient_getDatabase(e:ModelEvent):void 
 		{
-			result = e.result;
-			if (result["clover"] >= 0)
+			
+			if (e.result["clover"] >= 0)
+			{
+				result = e.result;
 				resume = true;
+			}
 			initMenu();
 		}
 		
@@ -144,6 +148,8 @@ package states
 					removeMenu();
 					break;
 				case "NEW GAME":
+					result = null;
+					socketClient.resetDataBase();
 					initGame();
 					removeMenu();
 					break;

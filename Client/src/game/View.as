@@ -75,6 +75,7 @@ package game
 			plant = new Sprite();
 			addChild(plant);
 			var ground: ContentLoader = new ContentLoader("../bin/res/bg.jpg");
+			plant.addChild(ground);
 			ground.addEventListener(Event.COMPLETE, groundLoadComplete);
 		}
 		
@@ -196,7 +197,7 @@ package game
 			sunflowerText.text = sunflowerString;
 			addChild(sunflowerText);
 			
-			//getDatabase();
+			getDatabase();
 		}
 				
 		//Place Vegetables from DataBase
@@ -415,7 +416,6 @@ package game
 		{
 			var ground: ContentLoader = e.target as ContentLoader
 			ground.removeEventListener(Event.COMPLETE, groundLoadComplete);
-			plant.addChild(ground);
 			plant.x = ( - plant.width + stage.stageWidth) / 2;
 			plant.y = ( - plant.height + stage.stageHeight) / 2;
 		}

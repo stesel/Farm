@@ -138,6 +138,24 @@ package utils {
 			}
 		}
 		
+		public function resetDataBase():void 
+		{
+			var tag:String = "request";
+			var typeName:String = "type";
+			var typeValue:String = "reset";
+			var xml:XML = <{tag} {typeName}={typeValue}/>;
+			trace(xml.toXMLString());
+			try 
+			{
+				writeUTFBytes(xml.toXMLString());
+				flush();
+			}
+			catch(e:Error)
+			{
+				trace(e.message);
+			}
+		}
+		
 //-------------------------------------------------------------------------------------------------
 //
 //  Events handlers

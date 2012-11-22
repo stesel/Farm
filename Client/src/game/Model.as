@@ -32,7 +32,7 @@ package game
 				_result = { };
 				_result["clover"] = 0;
 				_result["potato"] = 0;
-				_result["sunflover"] = 0;
+				_result["sunflower"] = 0;
 			}
 		}
 		
