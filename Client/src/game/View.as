@@ -171,12 +171,12 @@ package game
 			
 			_harvest["clover"] = harvest["clover"];
 			_harvest["potato"] = harvest["potato"];
-			_harvest["sunflover"] = harvest["sunflover"];
+			_harvest["sunflower"] = harvest["sunflower"];
 			
 			
 			var cloverString:String = "Clover: " + _harvest["clover"];
 			var potatoString:String = "Potato: " + _harvest["potato"];
-			var sunflowerString:String = "Sunflower: " + _harvest["sunflover"];
+			var sunflowerString:String = "Sunflower: " + _harvest["sunflower"];
 			
 			cloverText = new InfoText(15, 0x31f0dd);
 			cloverText.x = 5;
@@ -196,7 +196,7 @@ package game
 			sunflowerText.text = sunflowerString;
 			addChild(sunflowerText);
 			
-			getDatabase();
+			//getDatabase();
 		}
 				
 		//Place Vegetables from DataBase
@@ -226,7 +226,7 @@ package game
 		{
 			var cloverString:String = "Clover: " + _harvest["clover"];
 			var potatoString:String = "Potato: " + _harvest["potato"];
-			var sunflowerString:String = "Sunflower: " + _harvest["sunflover"];
+			var sunflowerString:String = "Sunflower: " + _harvest["sunflower"];
 			
 			cloverText.text = cloverString;
 			potatoText.text = potatoString;
@@ -321,7 +321,7 @@ package game
 					plant.removeChild(item);
 					_vegetables.splice(i, 1);
 					vegIndex.splice(i, 1);
-					_harvest["sunflover"]++;
+					_harvest["sunflower"]++;
 				}
 			}
 			changeResult();

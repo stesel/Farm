@@ -20,13 +20,13 @@
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>I:\Work\Test Work\Farm\Client\src</path-element>
-      <path-element>D:\Stesel\Work\WorkProjects\Tutor\Flash\Common</path-element>
-      <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>D:\Work\GitHub\Farm\Client\src</path-element>
+      <path-element>D:\Work\src\Common</path-element>
+      <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>I:\Work\Test Work\Farm\Client\src\Main.as</path-element>
+    <path-element>D:\Work\GitHub\Farm\Client\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#286A55</default-background-color>
   <default-frame-rate>60</default-frame-rate>

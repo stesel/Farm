@@ -40,7 +40,7 @@ package states
 			controller = new Controller(model);
 			view = new View(model, controller);
 			addChild(view);
-			model.addEventListener(ModelEvent.ACTION_PROCESSED, model_actionProcessed);
+			controller.addEventListener(ModelEvent.SEND_REQUEST, controller_sendRequest);
 			controller.addEventListener(GameEvent.CALL_MENU, controller_callMenu);
 		}
 		
@@ -49,7 +49,7 @@ package states
 			controller.stopGame();
 			removeGame();
 			removeChild(view);
-			model.removeEventListener(ModelEvent.ACTION_PROCESSED, model_actionProcessed);
+			controller.removeEventListener(ModelEvent.SEND_REQUEST, controller_sendRequest);
 			controller.removeEventListener(GameEvent.CALL_MENU, controller_callMenu);
 			model = null;
 			controller = null;
@@ -97,7 +97,7 @@ package states
 			this.dispatchEvent(new GameEvent(GameEvent.CALL_MENU));
 		}
 		
-		private function model_actionProcessed(e:ModelEvent):void 
+		private function controller_sendRequest(e:ModelEvent):void 
 		{
 			dispatchEvent(e);
 		}

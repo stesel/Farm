@@ -1,6 +1,7 @@
 package states
 {
 	import components.Messages;
+	import components.VegetableProperty;
 	import events.GameEvent;
 	import events.ModelEvent;
 	import events.StateEvent;
@@ -19,7 +20,7 @@ package states
 	public class StateManager extends Sprite
 	{
 		private var socketClient:SocketClient	//Socket
-		private var resume:Boolean = true;		//Resume in menu
+		private var resume:Boolean = false;		//Resume in menu
 			
 		private var _game:Game;					//Game State
 		private var _menu:Menu;					//Menu State
@@ -42,6 +43,24 @@ package states
 			socketClient.addEventListener(ModelEvent.GET_DATABASE, socketClient_getDatabase);
 			socketClient.addEventListener(SocketClient.NOT_RESPOND, socketClient_notRespond);
 			
+			
+			
+			///////////
+			var vector:Vector.<VegetableProperty> = new Vector.<VegetableProperty>;
+			vector.length = 5;
+			for (var i:int = 0;i < vector.length; i++)
+			{
+				var item: VegetableProperty = new VegetableProperty("potato", i, 100 * i, 100 * i);
+				vector[i] = item;
+			}
+			var obj:Object = { };
+			obj["vegetablesOnPlant"] = vector;
+			obj["clover"] = 3;
+			obj["potato"] = 4;
+			obj["sunflower"] = 5;
+			result = obj;
+			/////////
+			initMenu();
 		}
 			
 //-------------------------------------------------------------------------------------------------
@@ -99,6 +118,8 @@ package states
 		private function socketClient_getDatabase(e:ModelEvent):void 
 		{
 			result = e.result;
+			if (result["clover"] >= 0)
+				resume = true;
 			initMenu();
 		}
 		

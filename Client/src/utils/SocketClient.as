@@ -49,13 +49,6 @@ package utils {
 			removeEventListener(ProgressEvent.SOCKET_DATA, socketDataHandler);
 		}
 		
-		//Send to Socket
-		private function sendRequest(data:String):void 
-		{
-			writeUTFBytes(data);
-			flush();
-		}
-		
 		// Read Data from Socket
 		private function readResponse(bytes:int):void 
 		{
@@ -64,6 +57,7 @@ package utils {
 			parseData(data);
 		}
 		
+		//Parse xml-file
 		private function parseData(data:String = null):void 
 		{
 			var xml:XML = new XML(data);
@@ -90,13 +84,9 @@ package utils {
 			var crop:VegetableProperty = obj["crop"];
 			var typeValue:String = obj["tag"]; 
 			
-			var vegetableType:String = crop.type.toString();  
 			var phaseName:String = "phase";  
-			var phaseValue:String = crop.phase.toString();  
 			var xName:String = "x";  
-			var xValue:String = crop.x.toString(); 
 			var yName:String = "y";
-			var yValue:String = crop.y.toString();
 			
 			if (typeValue == "step")
 			{
@@ -104,11 +94,16 @@ package utils {
 			}
 			else if (typeValue == "take")
 			{
-				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType}/>;
+				var vegetableType1:String = crop.type.toString(); 
+				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType1}/>;
 			}
 			else if (typeValue == "plant")
 			{
-				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType} {phaseName}={phaseValue} {xName}={xValue} {yName}={yValue}/>;
+				var vegetableType2:String = crop.type.toString(); 
+				var phaseValue:String = crop.phase.toString(); 
+				var xValue:String = crop.x.toString();
+				var yValue:String = crop.y.toString();				
+				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType2} {phaseName}={phaseValue} {xName}={xValue} {yName}={yValue}/>;
 			}
 			
 			//trace(xml.toXMLString());
