@@ -10,9 +10,6 @@ package events
 	{
 		static public const CALL_MENU:String = "callMenu";
 		static public const GAME_EXIT:String = "gameExit";
-		static public const CPU_MISS:String = "cpuMiss";
-		static public const PLAYER_MISS:String = "playerMiss";
-		static public const BALL_MISSED:String = "ballMissed";
 		
 		public var title:String;
 		

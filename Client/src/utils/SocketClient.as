@@ -6,6 +6,7 @@ package utils {
 	 */
 		
 	import components.VegetableProperty;
+	import events.ModelEvent;
 	import flash.utils.ByteArray;
 	import flash.errors.*;
 	import flash.events.*;
@@ -13,6 +14,7 @@ package utils {
 	
 	public class SocketClient extends Socket 
 	{
+		static public const NOT_RESPOND:String = "notRespond";
 		
 		public function SocketClient(host:String = null, port:uint = 0) 
 		{
@@ -64,15 +66,31 @@ package utils {
 		
 		private function parseData(data:String = null):void 
 		{
-			trace(data);
+			var xml:XML = new XML(data);
+			var xmlList:XMLList = xml.children();
+			var obj:Object = { };
+			
+			if (xmlList.hasOwnProperty("result"))
+			{
+				obj["clover"] = xmlList.result.@clover;
+			}
+			
+			dispatchEvent(new ModelEvent(ModelEvent.GET_DATABASE, false, false, obj));
+			
 		}
 		
 		//Send Request to plant new Vegetable
-		public function sendPackage(crop:VegetableProperty = null):void
+		public function sendPackage(obj:Object = null):void
 		{
-			var tagname:String = "plant";  
-			var typeName:String = "type";  
-			var typeValue:String = crop.type.toString();  
+			var xml:XML;
+			var tag:String = "request";
+			var typeName:String = "type";
+			var vegetableName:String = "name";
+			
+			var crop:VegetableProperty = obj["crop"];
+			var typeValue:String = obj["tag"]; 
+			
+			var vegetableType:String = crop.type.toString();  
 			var phaseName:String = "phase";  
 			var phaseValue:String = crop.phase.toString();  
 			var xName:String = "x";  
@@ -80,7 +98,38 @@ package utils {
 			var yName:String = "y";
 			var yValue:String = crop.y.toString();
 			
-			var xml:XML = <{tagname}{typeName}={typeValue} {phaseName}={phaseValue} {xName}={xValue} {yName}={yValue}> </{tagname}>;
+			if (typeValue == "step")
+			{
+				xml = <{tag} {typeName}={typeValue}/>;
+			}
+			else if (typeValue == "take")
+			{
+				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType}/>;
+			}
+			else if (typeValue == "plant")
+			{
+				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType} {phaseName}={phaseValue} {xName}={xValue} {yName}={yValue}/>;
+			}
+			
+			//trace(xml.toXMLString());
+			try 
+			{
+				writeUTFBytes(xml.toXMLString());
+				flush();
+			}
+			catch(e:Error)
+			{
+				trace(e.message);
+				dispatchEvent(new Event(SocketClient.NOT_RESPOND));
+			}
+		}
+			
+		private function getDataBase():void 
+		{
+			var tag:String = "request";
+			var typeName:String = "type";
+			var typeValue:String = "get";
+			var xml:XML = <{tag} {typeName}={typeValue}/>;
 			trace(xml.toXMLString());
 			try 
 			{
@@ -90,6 +139,7 @@ package utils {
 			catch(e:Error)
 			{
 				trace(e.message);
+				dispatchEvent(new Event(SocketClient.NOT_RESPOND));
 			}
 		}
 		
@@ -107,11 +157,13 @@ package utils {
 		private function connectHandler(e:Event):void 
 		{
 			trace("connectHandler: " + e);
+			getDataBase();
 		}
 		
 		private function ioErrorHandler(e:IOErrorEvent):void 
 		{
 			trace("ioErrorHandler: " + e);
+			dispatchEvent(new Event(SocketClient.NOT_RESPOND));
 		}
 		
 		private function securityErrorHandler(e:SecurityErrorEvent):void

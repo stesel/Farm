@@ -11,12 +11,11 @@ package game
      */
     public class Model extends EventDispatcher 
 	{
-		private var _vegetablesProperties:Vector.<VegetableProperty>;	//Collected vegetables properties
 		private var _result:Object;										//Game Scores
-		private var socketClient:SocketClient;							//Socket
 		
-		public function Model() 
+		public function Model(result:Object = null) 
 		{
+			_result = result;
             init();
         }
 		
@@ -28,10 +27,6 @@ package game
 		
 		private function init():void 
 		{
-			_vegetablesProperties = new Vector.<VegetableProperty>;
-			socketClient = new SocketClient("127.0.0.7", 2000);
-			socketClient.enable();
-			
 			if (_result == null)
 			{
 				_result = { };
@@ -97,26 +92,11 @@ package game
 			dispatchEvent(new ModelEvent(ModelEvent.ACTION_PROCESSED, false, false, obj));
 		}
 		
-		public function sendRequest(properties:VegetableProperty):void 
-		{
-			socketClient.sendPackage(properties);
-		}
-		
 //--------------------------------------------------------------------------
 //
 //  Getters and setters
 //
 //--------------------------------------------------------------------------
-		
-		public function get vegetablesProperties():Vector.<VegetableProperty>
-		{
-			return _vegetablesProperties;
-		}
-		
-		public function set vegetablesProperties(value:Vector.<VegetableProperty>):void
-		{
-			_vegetablesProperties = value;
-		}
 		
 		public function get result():Object
 		{

@@ -195,6 +195,30 @@ package game
 			sunflowerText.y = 3 + 2 * cloverText.height;
 			sunflowerText.text = sunflowerString;
 			addChild(sunflowerText);
+			
+			getDatabase();
+		}
+				
+		//Place Vegetables from DataBase
+		private function getDatabase():void 
+		{
+			var obj:Object = _model.result;
+			if (obj.hasOwnProperty("vegetablesOnPlant"))
+			{
+				var vector: Vector.<VegetableProperty> = obj["vegetablesOnPlant"];
+				for (var i:int = 0; i < vector.length; i++)
+				{
+					var property:VegetableProperty = vector[i];
+					var url:String = "../bin/res/";
+					url = String(url + property.type +"/" + property.phase + ".png")
+					var vegetable:ResourseLoader = getVegetable(url) as ResourseLoader;
+					vegetable.x = property.x;
+					vegetable.y = property.y;
+					plant.addChild(vegetable);
+					_vegetables.push(vegetable);
+					vegIndex.push(property.phase);
+				}
+			}
 		}
 		
 		//Update results and send it to Model
@@ -283,7 +307,6 @@ package game
 					gatherSunFlower(type);
 					break;
 			}
-			
 		}
 		
 		//Gather a ripe Sun Flower
@@ -444,7 +467,7 @@ package game
 		//Model Handler
 		private function actionProcessed(e:ModelEvent):void 
 		{
-			var obj:Object = e.result as Object
+			var obj:Object = e.result as Object;
 			
 			//New Vegetable
 			if (obj.hasOwnProperty("newVegatable"))

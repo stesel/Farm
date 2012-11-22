@@ -19,9 +19,11 @@ package states
 		private var model:Model;
 		private var view:View;
 		private var blur:BlurFilter;
+		private var _result:Object;
 		
-		public function Game() 
+		public function Game(result: Object = null)
 		{
+			_result = result;
 			enterState();
 			initBlur();
 		}
@@ -34,7 +36,7 @@ package states
 		
 		public function enterState():void 
 		{
-            model = new Model();
+            model = new Model(_result);
 			controller = new Controller(model);
 			view = new View(model, controller);
 			addChild(view);

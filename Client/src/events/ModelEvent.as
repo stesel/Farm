@@ -10,6 +10,7 @@ package events
 	{
 		static public const ACTION_PROCESSED:String = "ActionProcessed";
 		static public const SEND_REQUEST:String = "SendRequest";
+		static public const GET_DATABASE:String = "getDatabase";
 		
 		public var result:Object;
 		

@@ -7,6 +7,7 @@ package game
     import flash.events.EventDispatcher;
     import flash.events.MouseEvent;
 	import flash.display.Sprite;
+	import flash.sampler.NewObjectSample;
     /**
 	 * ...Controller component of MVC
 	 * @author Leonid Trofimchuk
@@ -59,13 +60,13 @@ package game
 			buttonActions[GameActions.MENU] = onCallMenu;
 		}
 		
-		
-		public function sendRequest(properties:VegetableProperty):void 
+		//Send to server Planed Vegetable
+		public function sendRequest(crop:VegetableProperty):void 
 		{
 			var obj:Object = { };
-			obj["request"] = properties;
+			obj["tag"] = "plant";
+			obj["crop"] = crop;
 			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
-			_model.sendRequest(properties);
 		}
 		
 		private function onPlantClover():void 
@@ -86,21 +87,40 @@ package game
 		private function onTakeClover():void 
 		{
 			_model.gatherClover();
+			var crop:VegetableProperty = new VegetableProperty("clover");
+			var obj:Object = { };
+			obj["tag"] = "take";
+			obj["crop"] = crop;
+			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
+			
 		}
 		
 		private function onTakePotato():void 
 		{
 			_model.gatherPotato();
+			var crop:VegetableProperty = new VegetableProperty("potato");
+			var obj:Object = { };
+			obj["tag"] = "take";
+			obj["crop"] = crop;
+			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
 		}
 		
 		private function onTakeSunFlower():void 
 		{
 			_model.gatherSunFlower();
+			var crop:VegetableProperty = new VegetableProperty("sunflower");
+			var obj:Object = { };
+			obj["tag"] = "take";
+			obj["crop"] = crop;
+			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
 		}
 		
 		private function onMakeMove():void 
 		{
 			_model.move();
+			var obj:Object = { };
+			obj["tag"] = "step";
+			dispatchEvent(new ModelEvent(ModelEvent.SEND_REQUEST, false, false, obj));
 		}
 		
 		private function onCallMenu():void 

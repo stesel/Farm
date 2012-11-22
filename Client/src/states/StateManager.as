@@ -1,5 +1,6 @@
 package states
 {
+	import components.Messages;
 	import events.GameEvent;
 	import events.ModelEvent;
 	import events.StateEvent;
@@ -10,16 +11,19 @@ package states
 	import flash.net.SharedObject;
 	import flash.system.fscommand;
 	import flash.utils.setTimeout;
+	import utils.SocketClient;
 	/**
 	 * ...	State Manager
 	 * @author Leonid Trofimchuk
 	 */
 	public class StateManager extends Sprite
 	{
-		private var resume:Boolean;				//Resume in menu
+		private var socketClient:SocketClient	//Socket
+		private var resume:Boolean = true;		//Resume in menu
 			
 		private var _game:Game;					//Game State
-		private var _menu:Menu;					//Menu State 
+		private var _menu:Menu;					//Menu State
+		private var result:Object;				//Game result
 			
 		public function StateManager() 
 		{
@@ -33,7 +37,11 @@ package states
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
-			initMenu();
+			socketClient = new SocketClient("127.0.0.7", 2000);
+			socketClient.enable();
+			socketClient.addEventListener(ModelEvent.GET_DATABASE, socketClient_getDatabase);
+			socketClient.addEventListener(SocketClient.NOT_RESPOND, socketClient_notRespond);
+			
 		}
 			
 //-------------------------------------------------------------------------------------------------
@@ -60,6 +68,7 @@ package states
 		{
 			if (_game != null)
 			{
+				_game.removeEventListener(ModelEvent.SEND_REQUEST, game_sendRequest);
 				_game.removeEventListener(GameEvent.CALL_MENU, game_callMenu);
 				_game.leaveState();
 				removeChild(_game);
@@ -70,11 +79,12 @@ package states
 		private function initGame():void
 		{	
 			leaveGame();
-			_game = new Game();
+			_game = new Game(result);
 			addChild(_game);
+			_game.addEventListener(ModelEvent.SEND_REQUEST, game_sendRequest);
 			_game.addEventListener(GameEvent.CALL_MENU, game_callMenu);
 		}
-			
+		
 		private function closeApp():void 
 		{
 			fscommand("quit");
@@ -85,6 +95,12 @@ package states
 //	Event Handlers Definition
 //
 //-------------------------------------------------------------------------------------------------	
+		
+		private function socketClient_getDatabase(e:ModelEvent):void 
+		{
+			result = e.result;
+			initMenu();
+		}
 		
 		private function game_callMenu(e:GameEvent):void 
 		{
@@ -116,6 +132,25 @@ package states
 				default:
 					closeApp();
 			}
+		}
+			
+		private function game_sendRequest(e:ModelEvent):void 
+		{
+			socketClient.sendPackage(e.result);
+		}
+		
+		private function socketClient_notRespond(e:Event):void 
+		{
+			var message:Messages = new Messages("Server Does Not Respond", 0xff3300);
+			addChild(message);
+			message.addEventListener(Messages.REMOVE_MESSAGE, message_removeMessage);
+		}
+		
+		private function message_removeMessage(e:Event):void 
+		{
+			var message:Messages = e.target as Messages;
+			message.removeEventListener(Messages.REMOVE_MESSAGE, message_removeMessage);
+			removeChild(message);
 		}
 		
 	}
