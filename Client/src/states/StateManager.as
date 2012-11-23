@@ -100,7 +100,7 @@ package states
 		private function socketClient_getDatabase(e:ModelEvent):void 
 		{
 			result = e.result;
-			if(result["clover"] > 0 || result["potato"] > 0 || result["sunflover"] > 0)
+			if(result["clover"] > 0 || result["potato"] > 0 || result["sunflover"] > 0 || result["vegetablesOnPlant"].length > 0)
 				resume = true;
 			
 			initMenu();

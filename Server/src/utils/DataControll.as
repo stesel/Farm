@@ -139,17 +139,6 @@ package utils
             sQLConnection.begin();
 		}
 		
-		//Update Scores
-		private function updateScores(clover:int = 0, potato:int = 0, sunflower:int = 0):void
-		{
-			result["clover"] = clover;
-			result["potato"] = potato;
-			result["sunflower"] = sunflower;
-			
-			sQLConnection.addEventListener(SQLEvent.BEGIN, updateScoresHandler);
-            sQLConnection.begin();
-		}
-		
 		//Delete Vegetables From Table
 		public function takeVegetable(curNameVegetable:String):void
 		{
@@ -277,7 +266,6 @@ package utils
 			
         }
 		
-		
 		//Reset Score
 		private function resetScoresHandler(e:SQLEvent):void
         {
@@ -300,7 +288,6 @@ package utils
 		
 		private function executeScoresHandler(e:SQLEvent):void 
 		{
-			
 			var statement:SQLStatement = e.target as SQLStatement;
             statement.removeEventListener(SQLEvent.RESULT, executeScoresHandler);
             statement.removeEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
@@ -337,29 +324,6 @@ package utils
 			
 			
         }
-		
-		//Update Scores Handler
-		private function updateScoresHandler(e:SQLEvent):void 
-		{
-			sQLConnection.removeEventListener(SQLEvent.BEGIN, updateScoresHandler);
-			
-			scoresStatement = new SQLStatement();
-            scoresStatement.sqlConnection = sQLConnection;
-           
-			scoresStatement.text = 
-                "UPDATE scores" + 
-                "SET clover = :clover, potato = :potato, sunflower = :sunflower" +
-				"WHERE id=1";
-				            
-			scoresStatement.parameters[":clover"] = result["clover"];
-            scoresStatement.parameters[":potato"] = result["potato"];
-            scoresStatement.parameters[":sunflower"] = result["sunflower"];
-			
-			scoresStatement.addEventListener(SQLEvent.RESULT, executeHandler);
-            scoresStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
-            
-            scoresStatement.execute();
-		}
 		
 		// Called when the transaction to Write Planted Vagetables begins
         private function commitVegetable(event:SQLEvent):void
@@ -444,37 +408,14 @@ package utils
 			vegetablesStatement = new SQLStatement();
             vegetablesStatement.sqlConnection = sQLConnection;
 			
-			vegetablesStatement.text = "SELECT name, x, y, phase FROM vegetables WHERE phase < 5"; 
+			vegetablesStatement.text = "UPDATE vegetables SET phase = phase + 1 WHERE  phase < 5"; 
 			
-			vegetablesStatement.addEventListener(SQLEvent.RESULT, phaseIncreaseSelectHandler);
+			vegetablesStatement.addEventListener(SQLEvent.RESULT, executeHandler);
             vegetablesStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
             
             vegetablesStatement.execute();	
 		}
-		
-		//Phase Increase in SELECT Handler
-		private function phaseIncreaseSelectHandler(e:SQLEvent):void 
-		{
-			vegetablesStatement.removeEventListener(SQLEvent.RESULT, takeSelectVegetablesHandler);
-			vegetablesStatement.removeEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
 			
-			var result:SQLResult = (e.target as SQLStatement).getResult();
-			if (result != null)
-			{
-				var inc:int = result.data.length;
-				if (inc > 0 ) 
-				{
-					vegetablesStatement = new SQLStatement();
-					vegetablesStatement.sqlConnection = sQLConnection;
-					vegetablesStatement.text = "UPDATE vegetables SET" + 
-					"phase = phase + 1";
-					
-					vegetablesStatement.addEventListener(SQLEvent.RESULT, executeHandler);
-					vegetablesStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);            
-					vegetablesStatement.execute();
-				}
-			}
-		}
 			
 		//Compile Result from Base
 		private function resultHandler(e:SQLEvent):void 
