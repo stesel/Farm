@@ -42,26 +42,6 @@ package states
 			socketClient.enable();
 			socketClient.addEventListener(ModelEvent.GET_DATABASE, socketClient_getDatabase);
 			socketClient.addEventListener(SocketClient.NOT_RESPOND, socketClient_notRespond);
-			
-			
-			
-			///////////
-			//var vector:Vector.<VegetableProperty> = new Vector.<VegetableProperty>;
-			//vector.length = 5;
-			//for (var i:int = 0;i < vector.length; i++)
-			//{
-				//var item: VegetableProperty = new VegetableProperty("sunflower", 5, 100 * (i+2), 100 * (i+2));
-				//vector[i] = item;
-			//}
-			//var obj:Object = { };
-			//obj["vegetablesOnPlant"] = vector;
-			//obj["clover"] = 3;
-			//obj["potato"] = 4;
-			//obj["sunflower"] = 5;
-			//result = obj;
-			//resume = true;
-			/////////
-			//initMenu();
 		}
 			
 //-------------------------------------------------------------------------------------------------
@@ -120,8 +100,9 @@ package states
 		private function socketClient_getDatabase(e:ModelEvent):void 
 		{
 			result = e.result;
-			resume = true;
-
+			if(result["clover"] > 0 || result["potato"] > 0 || result["sunflover"] > 0)
+				resume = true;
+			
 			initMenu();
 		}
 		

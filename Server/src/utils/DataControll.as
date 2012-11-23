@@ -75,7 +75,7 @@ package utils
 			sQLConnection = new SQLConnection(); 	
 			sQLConnection.addEventListener(SQLEvent.OPEN, sQLConnection_open); 
 			sQLConnection.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
-			sQLConnection.openAsync(dataBaseFile, SQLMode.CREATE);
+			sQLConnection.openAsync(dataBaseFile, SQLMode.UPDATE);
 		}
 		
 		//Create Tables When It's Don't Exist 
@@ -185,8 +185,8 @@ package utils
 		//Reset Proggres
 		public function resetData():void
 		{
-			//resetVegetables();
 			resetScores();
+			//resetVegetables();
 		}
 		
 		
@@ -287,19 +287,35 @@ package utils
             // insert an employee record
             scoresStatement = new SQLStatement();
             scoresStatement.sqlConnection = sQLConnection;
-            scoresStatement.text = 
-								"UPDATE scores SET" + 
-								 "clover = :value" +
-								 "potato = :value" +
-								 "sunflower = :value";
+            scoresStatement.text = "UPDATE scores SET clover = :value, potato = :value, sunflower = :value";
 				            
 			scoresStatement.parameters[":value"] = 0;
 			
-            scoresStatement.addEventListener(SQLEvent.RESULT, executeHandler);
+            scoresStatement.addEventListener(SQLEvent.RESULT, executeScoresHandler);
             scoresStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
             
             scoresStatement.execute();
 			
+        }
+		
+		private function executeScoresHandler(e:SQLEvent):void 
+		{
+			
+			var statement:SQLStatement = e.target as SQLStatement;
+            statement.removeEventListener(SQLEvent.RESULT, executeScoresHandler);
+            statement.removeEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
+            
+            // No errors so far, so commit the transaction
+            sQLConnection.addEventListener(SQLEvent.COMMIT, commitScoresHandler);
+            sQLConnection.commit();
+        }
+		
+		// Called after the transaction is committed
+        private function commitScoresHandler(e:SQLEvent):void
+        {
+            sQLConnection.removeEventListener(SQLEvent.COMMIT, commitScoresHandler);
+            Main.log("Transaction complete " + e.target);
+			resetVegetables();
         }
 		
 		//Remove all vegetables from table
@@ -319,6 +335,7 @@ package utils
             
             vegetablesStatement.execute();
 			
+			
         }
 		
 		//Update Scores Handler
@@ -332,7 +349,7 @@ package utils
 			scoresStatement.text = 
                 "UPDATE scores" + 
                 "SET clover = :clover, potato = :potato, sunflower = :sunflower" +
-				"WHERE id =1";
+				"WHERE id=1";
 				            
 			scoresStatement.parameters[":clover"] = result["clover"];
             scoresStatement.parameters[":potato"] = result["potato"];
