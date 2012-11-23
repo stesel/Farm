@@ -33,6 +33,7 @@ package utils
 		private var vegetablesStatement:SQLStatement;
 		private var scoresStatement:SQLStatement;
 		private var curNameVegetable:String;
+		private var addToScore:int = 0;
 		
 		public function DataControll() 
 		{
@@ -372,10 +373,10 @@ package utils
 			vegetablesStatement.removeEventListener(SQLEvent.RESULT, takeSelectVegetablesHandler);
 			vegetablesStatement.removeEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
 			var result:SQLResult = (e.target as SQLStatement).getResult();
-			if (result != null)
+			if (result.data != null)
 			{	
-				var inc:int = result.data.length;
-				if (inc > 0 ) 
+				addToScore = result.data.length;
+				if (addToScore > 0 ) 
 				{
 					vegetablesStatement = new SQLStatement();
 					vegetablesStatement.sqlConnection = sQLConnection;
@@ -385,19 +386,49 @@ package utils
 					
 					vegetablesStatement.parameters[":name"] = this.curNameVegetable;			
 					vegetablesStatement.parameters[":phase"] = 5;
-					vegetablesStatement.addEventListener(SQLEvent.RESULT, executeHandler);
+					vegetablesStatement.addEventListener(SQLEvent.RESULT, takeVegetablesExecuteHandler);
 					vegetablesStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);            
 					vegetablesStatement.execute();
 					
-					scoresStatement = new SQLStatement();
-					scoresStatement.sqlConnection = sQLConnection;
-					scoresStatement.text = "UPDATE scores SET" + 
-					this.curNameVegetable + "= value + 1";
-					scoresStatement.addEventListener(SQLEvent.RESULT, executeHandler);
-					scoresStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);            
-					scoresStatement.execute();
 				}
 			}
+		}
+		
+		//Called after the  record is inserted
+		private function takeVegetablesExecuteHandler(e:SQLEvent):void 
+		{	
+			var statement:SQLStatement = e.target as SQLStatement;
+            statement.removeEventListener(SQLEvent.RESULT, takeVegetablesExecuteHandler);
+            statement.removeEventListener(SQLErrorEvent.ERROR, sQLConnection_error);
+            
+            // No errors so far, so commit the transaction
+            sQLConnection.addEventListener(SQLEvent.COMMIT, commitTakeVegetables);
+            sQLConnection.commit();
+        }
+		
+		// Called after the transaction is committed
+        private function commitTakeVegetables(e:SQLEvent):void
+        {
+            sQLConnection.removeEventListener(SQLEvent.COMMIT, commitTakeVegetables);
+            Main.log("Transaction complete " + e.target);
+			
+			//Increase Scores
+			sQLConnection.addEventListener(SQLEvent.BEGIN, increaseScoresHandler);
+            sQLConnection.begin();
+        }
+		
+		//Increase Scores Handler
+		private function increaseScoresHandler(e:SQLEvent):void 
+		{
+			sQLConnection.removeEventListener(SQLEvent.BEGIN, increaseScoresHandler);
+			
+			scoresStatement = new SQLStatement();
+			scoresStatement.sqlConnection = sQLConnection;
+			scoresStatement.text = "UPDATE scores SET " + this.curNameVegetable.toString() + " = " + this.curNameVegetable.toString() + " + " + addToScore.toString() + "";
+			//scoresStatement.text = "UPDATE scores SET clover = :value, potato = :value, sunflower = :value";
+			scoresStatement.addEventListener(SQLEvent.RESULT, executeHandler);
+			scoresStatement.addEventListener(SQLErrorEvent.ERROR, sQLConnection_error);            
+			scoresStatement.execute();
 		}
 		
 		//Phase Increase Handler
@@ -415,7 +446,6 @@ package utils
             
             vegetablesStatement.execute();	
 		}
-			
 			
 		//Compile Result from Base
 		private function resultHandler(e:SQLEvent):void 
