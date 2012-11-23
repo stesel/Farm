@@ -46,22 +46,22 @@ package states
 			
 			
 			///////////
-			var vector:Vector.<VegetableProperty> = new Vector.<VegetableProperty>;
-			vector.length = 5;
-			for (var i:int = 0;i < vector.length; i++)
-			{
-				var item: VegetableProperty = new VegetableProperty("sunflower", 5, 100 * (i+2), 100 * (i+2));
-				vector[i] = item;
-			}
-			var obj:Object = { };
-			obj["vegetablesOnPlant"] = vector;
-			obj["clover"] = 3;
-			obj["potato"] = 4;
-			obj["sunflower"] = 5;
-			result = obj;
-			resume = true;
+			//var vector:Vector.<VegetableProperty> = new Vector.<VegetableProperty>;
+			//vector.length = 5;
+			//for (var i:int = 0;i < vector.length; i++)
+			//{
+				//var item: VegetableProperty = new VegetableProperty("sunflower", 5, 100 * (i+2), 100 * (i+2));
+				//vector[i] = item;
+			//}
+			//var obj:Object = { };
+			//obj["vegetablesOnPlant"] = vector;
+			//obj["clover"] = 3;
+			//obj["potato"] = 4;
+			//obj["sunflower"] = 5;
+			//result = obj;
+			//resume = true;
 			/////////
-			initMenu();
+			//initMenu();
 		}
 			
 //-------------------------------------------------------------------------------------------------
@@ -116,14 +116,12 @@ package states
 //
 //-------------------------------------------------------------------------------------------------	
 		
+		//Respond from server with DataBase
 		private function socketClient_getDatabase(e:ModelEvent):void 
 		{
-			
-			if (e.result["clover"] >= 0)
-			{
-				result = e.result;
-				resume = true;
-			}
+			result = e.result;
+			resume = true;
+
 			initMenu();
 		}
 		
@@ -136,6 +134,7 @@ package states
 			initMenu();
 		}
 			
+		//Menu Handler	
 		private function menu_stateChanged(e:StateEvent):void 
 		{
 			switch (e.onState)
@@ -160,12 +159,14 @@ package states
 					closeApp();
 			}
 		}
-			
+		
+		//Send Request to server
 		private function game_sendRequest(e:ModelEvent):void 
 		{
 			socketClient.sendPackage(e.result);
 		}
 		
+		//Add Message if Server doesn't respond
 		private function socketClient_notRespond(e:Event):void 
 		{
 			var message:Messages = new Messages("Server Does Not Respond", 0xff3300);
@@ -173,6 +174,7 @@ package states
 			message.addEventListener(Messages.REMOVE_MESSAGE, message_removeMessage);
 		}
 		
+		//Message Handler
 		private function message_removeMessage(e:Event):void 
 		{
 			var message:Messages = e.target as Messages;

@@ -40,7 +40,7 @@ package utils {
 			addEventListener(ProgressEvent.SOCKET_DATA, socketDataHandler);
 		}
 		
-		public function removeListeners():void 
+		public function disable():void 
 		{
 			removeEventListener(Event.CLOSE, closeHandler);
 			removeEventListener(Event.CONNECT, connectHandler);
@@ -63,17 +63,34 @@ package utils {
 			var xml:XML = new XML(data);
 			var xmlList:XMLList = xml.children();
 			var obj:Object = { };
+			var xmlLength:int = xmlList.length();
 			
-			if (xmlList.hasOwnProperty("result"))
+			var vector:Vector.<VegetableProperty> = new Vector.<VegetableProperty>();
+			
+			for (var i:int = 0; i < xmlLength; i++)
 			{
-				obj["clover"] = xmlList.result.@clover;
+				if (xmlList[i].@type == "plant")
+				{
+					var vegetable: VegetableProperty = new VegetableProperty(xmlList[i].@name, xmlList[i].@phase, xmlList[i].@x, xmlList[i].@y);
+					vector.push(vegetable);
+				}
+				if (xmlList[i].@type == "scores")
+				{
+					if(xmlList[i].@name == "clover")
+						obj["clover"] = xmlList[i].@value;
+					if(xmlList[i].@name == "potato")
+						obj["potato"] = xmlList[i].@value;
+					if(xmlList[i].@name == "sunflower")
+						obj["sunflower"] = xmlList[i].@value;
+				}
 			}
+			obj["vegetablesOnPlant"] = vector;
 			
 			dispatchEvent(new ModelEvent(ModelEvent.GET_DATABASE, false, false, obj));
 			
 		}
 		
-		//Send Request to plant new Vegetable
+		//Send Request to plant, step or take on Field
 		public function sendPackage(obj:Object = null):void
 		{
 			var xml:XML;
@@ -105,27 +122,6 @@ package utils {
 				var yValue:String = crop.y.toString();				
 				xml = <{tag} {typeName}={typeValue} {vegetableName}={vegetableType2} {phaseName}={phaseValue} {xName}={xValue} {yName}={yValue}/>;
 			}
-			
-			//trace(xml.toXMLString());
-			try 
-			{
-				writeUTFBytes(xml.toXMLString());
-				flush();
-			}
-			catch(e:Error)
-			{
-				trace(e.message);
-				dispatchEvent(new Event(SocketClient.NOT_RESPOND));
-			}
-		}
-			
-		private function getDataBase():void 
-		{
-			var tag:String = "request";
-			var typeName:String = "type";
-			var typeValue:String = "get";
-			var xml:XML = <{tag} {typeName}={typeValue}/>;
-			trace(xml.toXMLString());
 			try 
 			{
 				writeUTFBytes(xml.toXMLString());
@@ -138,13 +134,32 @@ package utils {
 			}
 		}
 		
+		//Get Data from DataBase	
+		private function getDataBase():void 
+		{
+			var tag:String = "request";
+			var typeName:String = "type";
+			var typeValue:String = "get";
+			var xml:XML = <{tag} {typeName}={typeValue}/>;
+			try 
+			{
+				writeUTFBytes(xml.toXMLString());
+				flush();
+			}
+			catch(e:Error)
+			{
+				trace(e.message);
+				dispatchEvent(new Event(SocketClient.NOT_RESPOND));
+			}
+		}
+		
+		//Reset DataBase
 		public function resetDataBase():void 
 		{
 			var tag:String = "request";
 			var typeName:String = "type";
 			var typeValue:String = "reset";
 			var xml:XML = <{tag} {typeName}={typeValue}/>;
-			trace(xml.toXMLString());
 			try 
 			{
 				writeUTFBytes(xml.toXMLString());

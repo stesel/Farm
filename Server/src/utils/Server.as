@@ -10,6 +10,7 @@ package utils
 	import flash.net.Socket;
 	import flash.sampler.getSize;
 	import flash.utils.ByteArray;
+	import flash.utils.setTimeout;
 	
 	/**
 	 * ...
@@ -17,6 +18,8 @@ package utils
 	 */
 	public class Server extends Sprite 
 	{
+		private var dataControll:DataControll;			//SQL Base
+		
 		private var message:String;
 		private var messageText:InfoText;
 		private var serverSocket: ServerSocket;
@@ -24,6 +27,7 @@ package utils
 		private var directionValue:int;
 		private var spacingValue:int;
 		private var distanceValue:int;
+		private var socket:Socket;
 		
 		public function Server()
 		{
@@ -56,7 +60,7 @@ package utils
 				serverSocket = new ServerSocket();
 				serverSocket.addEventListener(ServerSocketConnectEvent.CONNECT, connectHandler ); 
 				serverSocket.addEventListener(Event.CLOSE, onClose );
-				serverSocket.bind( 2000, "127.0.0.7" );
+				serverSocket.bind(2000, "127.0.0.7" );
 				serverSocket.listen(); 
 				
 				message = "Server: " + String(serverSocket.localPort);
@@ -72,13 +76,20 @@ package utils
 				message = "Server: " +  e.message;
 				messageText.setText(message);
 			}
+			finally 
+			{ 
+				// init DataBase
+				dataControll = new DataControll(); 
+			}
+			
+
 		}
 		
 		public function convert(data:Array):ByteArray 
 		{
 			var result:ByteArray = new ByteArray();
 			
-			//Pilot Signal
+			//Pilot Signall
 			result.writeByte(0xff);
 			result.writeByte(0xff);
 			result.writeByte(0xff);
@@ -103,30 +114,16 @@ package utils
 			clientSockets.length = 0;
 		}
 		
-		public function setValues(dir:int = 0, s:int = 0, d:int = 0):void
-		{
-			directionValue = dir;
-			spacingValue = s;
-			distanceValue = d;
-			
-			var data:String = " ";
-			if (clientSockets.length != 0)
-			{
-				var socket: Socket = clientSockets[clientSockets.length - 1];
-				socket.writeBytes(convert([directionValue, spacingValue, distanceValue]));
-				socket.flush(); 
-			}
-		}
-		
 //-------------------------------------------------------------------------------------------------
 //
 //  Events handlers
 //
 //-------------------------------------------------------------------------------------------------	
 		
+		//Client Connect Handler
 		private function connectHandler(e:ServerSocketConnectEvent):void 
 		{
-			var socket:Socket = e.socket as Socket; 
+			socket = e.socket as Socket; 
             clientSockets.push(socket); 
              
             socket.addEventListener(ProgressEvent.SOCKET_DATA, socketDataHandler); 
@@ -134,45 +131,114 @@ package utils
             socket.addEventListener(IOErrorEvent.IO_ERROR, onIOError); 
 			  
             //Send a connect message 
-            socket.writeUTFBytes("Connected."); 
-            socket.flush();
-			message = "Server: " + "Connected.";
-			messageText.setText(message);
+			message = "Server: " + "Connected to " + socket.localAddress.toString();
+			Main.log(message);
+			
 		}
 		
 		private function socketDataHandler(e:ProgressEvent):void 
 		{
-			var socket:Socket = e.target as Socket 
-                 
-            var socketMessage:String = socket.readUTFBytes(socket.bytesAvailable); 
+			socket = e.target as Socket;                  
+            var socketMessage:String = socket.readUTFBytes(e.bytesLoaded); 
            
 			message = "Server: " + "Received: " + socketMessage;
-			messageText.setText(message);
+			Main.log(message);
 			
-			var data:Array = new Array(directionValue, spacingValue, distanceValue); 
+
+			var xml:XML =  new XML(socketMessage);			
 			
-            socket.writeBytes(convert(data)); 
-            socket.flush(); 
-			message = "Server: " +  "Sending: " + data;
-			messageText.setText(message);
+			
+			if (xml.@type == "plant") 
+			{
+				dataControll.writeVegetableToSQL(xml);
+			}
+			
+			if (xml.@type == "take")
+			{
+				dataControll.takeVegetable(xml.@name);
+			}
+				
+			if (xml.@type == "step")
+			{
+				dataControll.makeStep();
+			}
+						
+			if (xml.@type == "get") 
+			{	
+				dataControll.addEventListener(DataControll.DATA_COMPLETE, onGetAllData);
+				dataControll.getAllData();
+			}
+			
+			if (xml.@type == "reset") 
+			{
+				dataControll.resetData();
+			}
+			
 		}
 			
 		private function onIOError(e:IOErrorEvent):void 
 		{
 			message = "Server: " + e.text;
-			messageText.setText(message);
+			Main.log(message);
 		}
 		
 		private function onClientClose(e:Event):void 
 		{
+			socket = null;
 			message = "Server: " + "Connection to client closed";
-			messageText.setText(message);
+			Main.log(message);
 		}
 		
 		private function onClose(e:Event):void 
 		{
 			message = "Server: " + "Server socket closed by OS.";
-			messageText.setText(message);
+			Main.log(message);
+		}
+		
+		private function onGetAllData(e:Event):void
+		{
+			dataControll.removeEventListener(DataControll.DATA_COMPLETE, onGetAllData);
+			var data:Array = dataControll.allPackage;
+			var xml:XML = new XML();
+			var xmlChild:XML;
+			var tagRoot:String = "response";
+			var tagChild:String = "item";
+			var tagName:String = "name";
+			var tagValue:String = "value";
+			var typeName:String = "type";					
+			var typeValue1:String = "scores";
+			var typeValue2:String = "plant";
+			var phaseName:String = "phase";  
+			var xName:String = "x";  
+			var yName:String = "y";
+			var cloverName:String = "clover";
+			var potatoName:String = "potato";
+			var sunflowerName:String = "sunflower";
+			
+			xml = <{tagRoot}> </{tagRoot}> ;
+			
+			for (var i:int = 0; i < data.length; i++) 
+			{
+				var row:Object = data[i];
+				if (row.hasOwnProperty("name"))
+				{
+					xmlChild = <{tagChild} {typeName}={typeValue2} {tagName}={row.name} {phaseName}={row.phase} {xName}={row.x} {yName}={row.y}/>;							
+					xml.appendChild(xmlChild);
+				}
+				if (row.hasOwnProperty("clover"))
+				{
+					xmlChild = <{tagChild} {typeName}={typeValue1} {tagName}={cloverName} {tagValue}={row.clover}/>;
+					xml.appendChild(xmlChild);			
+					xmlChild = <{tagChild} {typeName}={typeValue1} {tagName}={potatoName} {tagValue}={row.potato}/>;
+					xml.appendChild(xmlChild);					
+					xmlChild = <{tagChild} {typeName}={typeValue1} {tagName}={sunflowerName} {tagValue}={row.sunflower}/>;
+					xml.appendChild(xmlChild);
+				}
+			}
+			
+			socket.writeUTFBytes(xml.toXMLString()); 
+			socket.flush();					
+			Main.log("Server sent: " + xml.toXMLString());
 		}
 	}
 

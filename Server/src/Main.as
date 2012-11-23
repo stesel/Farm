@@ -12,8 +12,9 @@ package
 	import flash.events.TextEvent;
 	import flash.net.NetworkInfo;
 	import flash.net.NetworkInterface;
+	import flash.text.TextField;
 	import flash.text.TextFieldType;
-	import utils.DataControll;
+	import flash.text.TextFormat;
 	import utils.Server;
 	
 	[SWF(backgroundColor = "#008080", frameRate = "30", width = "800", height = "600")]
@@ -25,10 +26,16 @@ package
 	{
 		private var window:NativeWindow;				//Window
 		private var startButton:SimpleButton;			//Start/Restart Button
-		private var statusText:InfoText;				//Current State
 			
 		private var server:Server;						//Server Socket
-		private var dataControll:DataControll;			//SQL Base
+		
+		private static var logText:TextField;
+		
+		public static function log(value:String):void {
+			logText.appendText(value + "\n");
+			logText.scrollV = logText.numLines;
+			trace(value);
+		};
 		
 		public function Main() 
 		{
@@ -65,18 +72,20 @@ package
 				window.addEventListener(Event.CLOSE, windowCloseHandler);
 			}	
 			
-			statusText = new InfoText(16);
-			statusText.setText("Ready");
-			statusText.x = 5;
-			statusText.y = stage.stageHeight - statusText.height - 5;
-			addChild(statusText);
-			
 			startButton = new SimpleButton("Start Server");
 			startButton.x = stage.stageWidth / 2;
 			startButton.y = stage.stageHeight / 2;
 			this.addChild(startButton);
 			startButton.addEventListener(ButtonEvent.BUTTON_PRESSED, startButton_buttonPressed1);
 			
+			logText = new TextField();
+			logText.x = 0;
+			logText.y = stage.stageHeight - 130;
+			logText.width = 600;
+			logText.height = 80;
+			logText.border = true;
+			logText.defaultTextFormat = new TextFormat("Arial", 12);
+			this.addChild(logText);			
 		}
 		
 //-------------------------------------------------------------------------------------------------
@@ -93,10 +102,7 @@ package
 			//init Server
 			server = new Server();
 			this.addChild(server);
-			
-			//init DataBase
-			dataControll = new DataControll();
-			
+					
 			startButton = new SimpleButton("Restart Server");
 			startButton.x = stage.stageWidth / 2;
 			startButton.y = stage.stageHeight / 2;
