@@ -28,7 +28,7 @@ package events
 		
 		public override function toString():String
 		{ 
-			return formatToString("EventModel", "bubbles", "cancelable", "eventPhase", "result");
+			return formatToString("ModelEvent", "bubbles", "cancelable", "eventPhase", "result");
 		} 
 		
 	}

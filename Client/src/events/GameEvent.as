@@ -26,7 +26,7 @@ package events
 		
 		override public function toString():String
 		{
-			return formatToString("PromptEvent", "type", "bubbles", "cancelable", "eventPhase", "title");
+			return formatToString("GameEvent", "type", "bubbles", "cancelable", "eventPhase", "title");
 		}
 		
 	}
