@@ -144,8 +144,13 @@ package utils
 			message = "Server: " + "Received: " + socketMessage;
 			Main.log(message);
 			
-
+			if (message == "<policy-file-request/>")
+			{
+				//sendPolicyFile();
+			}
+			
 			var xml:XML =  new XML(socketMessage);			
+			
 			
 			
 			if (xml.@type == "plant") 
@@ -239,6 +244,14 @@ package utils
 			socket.writeUTFBytes(xml.toXMLString()); 
 			socket.flush();					
 			Main.log("Server sent: " + xml.toXMLString());
+		}
+		
+		private function sendPolicyFile():void
+		{
+			socket.writeUTFBytes('<cross-domain-policy>' +
+									'<allow-access-from domain="*"/>' +
+								'</cross-domain-policy>'+ String.fromCharCode(0)); 
+			socket.flush();
 		}
 	}
 

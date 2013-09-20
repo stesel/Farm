@@ -16,17 +16,34 @@
     </define>
     <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'24.11.2012'</value>
+      <value>'20.09.2013'</value>
+    </define>
+    <define append="true">
+      <name>CONFIG::air</name>
+      <value>false</value>
+    </define>
+    <define append="true">
+      <name>CONFIG::mobile</name>
+      <value>false</value>
+    </define>
+    <define append="true">
+      <name>CONFIG::desktop</name>
+      <value>false</value>
     </define>
     <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>D:\Work\GitHub\Farm\Client\src</path-element>
-      <path-element>D:\Work\src\Common</path-element>
-      <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
+      <path-element>D:\Work\Git\Farm\Client\src</path-element>
+      <path-element>D:\Work\ExternalLibs</path-element>
+      <path-element>D:\Work\Git\developer-evogames\flash-clients\flash\core\src</path-element>
+      <path-element>D:\Work\Git\developer-evogames\flash-clients\flash\EvolutionGamingCore\src</path-element>
+      <path-element>D:\Work\Git\developer-evogames\flash-clients\flash\libs</path-element>
+      <path-element>D:\Work\Git\developer-evogames\flash-clients\flash\LocalizationFileManager\src</path-element>
+      <path-element>D:\Work\Git\developer-evogames\flash-clients\flash\UIComponents\src</path-element>
+      <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-    <path-element>D:\Work\GitHub\Farm\Client\src\Main.as</path-element>
+    <path-element>D:\Work\Git\Farm\Client\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#286A55</default-background-color>
   <default-frame-rate>60</default-frame-rate>

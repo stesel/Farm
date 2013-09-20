@@ -5,6 +5,7 @@ package
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.system.Security;
 	import states.StateManager;
 	
 	[SWF(backgroundColor = "#286a55", frameRate = "60", width = "800", height = "600")]
@@ -27,6 +28,8 @@ package
 		
 		private function init(e:Event = null):void 
 		{
+			Security.loadPolicyFile("crossdomain.xml");
+			
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			// entry point
 			
